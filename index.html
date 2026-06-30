@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Passport Quiz - ประเทศไหนที่เหมาะกับคุณ?</title>
+    <style>
+        :root {
+            --primary: #ff7597;
+            --secondary: #7dafff;
+            --bg-cozy: #fff5f7;
+            --text-main: #4a3e41;
+        }
+        body {
+            font-family: 'Kanit', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #fff1f3 0%, #eef5ff 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .quiz-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 3px solid #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(255, 117, 151, 0.15);
+            max-width: 550px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .game-title {
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: var(--secondary);
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .quiz-title {
+            font-size: 28px;
+            color: var(--primary);
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+        .tagline {
+            font-size: 15px;
+            color: #8a7a7d;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        .question-text {
+            font-size: 20px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #ebdcdf;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 16px;
+            color: var(--text-main);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: #fff9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 117, 151, 0.1);
+        }
+        .result-title {
+            font-size: 32px;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .result-desc {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #615255;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.6);
+            padding: 20px;
+            border-radius: 16px;
+        }
+        .share-btn {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .share-btn:hover {
+            transform: scale(1.05);
+            background: #1a91da;
+        }
+        .restart-link {
+            display: block;
+            margin-top: 20px;
+            color: #8a7a7d;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .restart-link:hover { text-decoration: underline; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="quiz-card" id="quiz-box">
+    <div id="start-screen">
+        <div class="game-title">Dream Echo Presents</div>
+        <h1 class="quiz-title">✈️ Dream Passport Quiz</h1>
+        <p class="tagline">"เพราะความฝันของทุกคนไม่เหมือนกัน... ประเทศไหนคือจุดเริ่มต้นที่ใช่สำหรับคุณ?"</p>
+        <button class="option-btn" style="text-align:center; background: var(--primary); color:white; border:none; width:100%; font-weight:bold; font-size:18px;" onclick="startQuiz()">เริ่มทำควิซ</button>
+    </div>
+
+    <div id="quiz-screen" style="display:none;">
+        <div class="game-title" id="progress-text">คำถามที่ 1/5</div>
+        <div class="question-text" id="question-field">โจทย์คำถาม</div>
+        <div class="options-list" id="options-field"></div>
+    </div>
+
+    <div id="result-screen" style="display:none;">
+        <div class="game-title">ผลลัพธ์พาสปอร์ตของคุณ</div>
+        <div class="result-title" id="result-country">Japan</div>
+        <div class="result-desc" id="result-text">คำอธิบายผลลัพธ์ประเทศ</div>
+        <a href="#" class="share-btn" id="share-twitter-btn" target="_blank">
+            🐦 แชร์ลง X (Twitter)
+        </a>
+        <a href="#" class="restart-link" onclick="location.reload()">ทำควิซอีกครั้ง</a>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "เช้าวันหยุดสุดสัปดาห์ บรรยากาศแบบไหนที่ทำให้คุณรู้สึกผ่อนคลายและมีความสุขที่สุด?",
+            options: [
+                { text: "นั่งจิบชาร้อนๆ ในห้องเสื่อทาทามิ มองดูสวนหินเงียบสงบ", score: { japan: 3, korea: 1, thailand: 0 } },
+                { text: "ตื่นมารับแสงแดดอุ่นๆ เดินไปตลาดหาของกินสตรีทฟู้ดอร่อยๆ", score: { thailand: 3, japan: 0, korea: 1 } },
+                { text: "แวะคาเฟ่สุดชิค ถ่ายรูปมุมสวยๆ อัปเดตเทรนด์แฟชั่นใหม่", score: { korea: 3, japan: 1, thailand: 0 } }
+            ]
+        },
+        {
+            q: "ถ้าพูดถึงสไตล์อาหารที่คุณอยากกินบ่อยที่สุดในชีวิตประจำวันล่ะ?",
+            options: [
+                { text: "อาหารที่เน้นความสดใหม่ รสชาติกลมกล่อม วัตถุดิบดั้งเดิมพิถีพิถัน", score: { japan: 3, korea: 0, thailand: 1 } },
+                { text: "อาหารรสจัดจ้าน ครบรส เปรี้ยว หวาน เผ็ด มีสมุนไพรหอมๆ", score: { thailand: 3, japan: 1, korea: 0 } },
+                { text: "อาหารปิ้งย่างร้อนๆ กินคู่กับเครื่องเคียงหลากหลายละลานตา", score: { korea: 3, thailand: 0, japan: 1 } }
+            ]
+        },
+        {
+            q: "เมื่อพูดถึง 'สไตล์การแต่งตัว' หรือแฟชั่นที่คุณชอบใส่?",
+            options: [
+                { text: "แนวมินิมอล คุมโทนสีธรรมชาติ เรียบง่ายแต่ดูดีมีสไตล์", score: { japan: 3, korea: 2, thailand: 0 } },
+                { text: "เสื้อผ้าโปร่งสบาย เหมาะกับอากาศอบอุ่น มีสีสันหรือลวดลายสดใส", score: { thailand: 3, japan: 0, korea: 1 } },
+                { text: "สตรีทแวร์นำเทรนด์ แต่งตัวคุมโทนเท่ๆ เหมือนหลุดมาจากรันเวย์หรือซีรีส์", score: { korea: 3, japan: 1, thailand: 0 } }
+            ]
+        },
+        {
+            q: "เวลาที่คุณเหนื่อยล้า วิธีการฮีลใจหรือชาร์จพลังที่ดีที่สุดของคุณคืออะไร?",
+            options: [
+                { text: "ปลีกตัวไปอยู่กับธรรมชาติที่เงียบสงบ แช่น้ำอุ่นให้สบายใจ", score: { japan: 3, thailand: 1, korea: 0 } },
+                { text: "ออกไปปาร์ตี้ สังสรรค์กับกลุ่มเพื่อนสนิท หัวเราะเสียงดังๆ", score: { thailand: 3, korea: 2, japan: 0 } },
+                { text: "เดินช้อปปิ้งเครื่องสำอาง สกินแคร์ หรือไปดูคอนเสิร์ตวงโปรด", score: { korea: 3, japan: 0, thailand: 1 } }
+            ]
+        },
+        {
+            q: "ในเกมจำลองชีวิต (Life Sim) ยุคใหม่ คุณอยากให้ตัวละครของคุณเริ่มต้นทำอะไรเป็นสิ่งแรก?",
+            options: [
+                { text: "จัดสวนดอกไม้สไตล์เซน ตกแต่งบ้านไม้โบราณให้ดูอบอุ่นคลาสสิก", score: { japan: 3, korea: 1, thailand: 0 } },
+                { text: "เปิดร้านขายอาหาร คอยต้อนรับผู้คนในชุมชนที่เป็นกันเองและสนุกสนาน", score: { thailand: 3, japan: 1, korea: 1 } },
+                { text: "ปั้นตัวละครให้เป็นสตาร์ชื่อดังในเมืองใหญ่ที่เต็มไปด้วยแสงสี", score: { korea: 3, japan: 0, thailand: 0 } }
+            ]
+        }
+    ];
+
+    const resultsData = {
+        japan: {
+            title: "🌸 ญี่ปุ่น (Japan) 🌸",
+            desc: "คุณคือคนที่รักความสงบ หลงใหลในความประณีต มินิมอล และวัฒนธรรมที่ผสมผสานระหว่างความดั้งเดิมและความทันสมัยได้อย่างลงตัว! ในเกม Dream Echo คุณเหมาะที่จะสร้างชีวิตท่ามกลางธรรมชาติ คาเฟ่แมวสุดน่ารัก และความอบอุ่นสไตล์ Cozy ที่สุด!"
+        },
+        thailand: {
+            title: "🌴 ไทย (Thailand) 🌴",
+            desc: "คุณคือสายชิลล์ รักสนุก รักอิสระ และขาดของอร่อยไม่ได้! คุณชอบความครื้นเครง อัธยาศัยดี และมีความสุขกับสิ่งรอบตัวได้ง่าย ในเกม Dream Echo คุณเหมาะที่จะสร้างคอมมูนิตี้ที่เต็มไปด้วยรอยยิ้ม ทำฟาร์มสไตล์เขตร้อน และเปิดร้านอาหารรสเด็ดต้อนรับผู้คน!"
+        },
+        korea: {
+            title: "✨ เกาหลี (Korea) ✨",
+            desc: "คุณคือผู้นำเทรนด์ มีความกระตือรือร้น ชอบสีสัน แฟชั่น และความโมเดิร์นทันสมัย! คุณหลงใหลในบรรยากาศคาเฟ่สุดชิค คอนเสิร์ต และความตื่นเต้นของเมืองใหญ่ ในเกม Dream Echo คุณเหมาะที่จะแต่งตัวละครสุดปัง แวะแลนด์มาร์กสุดเก๋ และสร้างไลฟ์สไตล์ที่โดดเด่น!"
+        }
+    };
+
+    let currentQuestionIndex = 0;
+    let scores = { japan: 0, thailand: 0, korea: 0 };
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const qData = questions[currentQuestionIndex];
+        document.getElementById('progress-text').innerText = `คำถามที่ ${currentQuestionIndex + 1}/${questions.length}`;
+        document.getElementById('question-field').innerText = qData.q;
+        
+        const optionsField = document.getElementById('options-field');
+        optionsField.innerHTML = '';
+        
+        qData.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.score);
+            optionsField.appendChild(btn);
+        });
+    }
+
+    function selectOption(scoreWeight) {
+        // รวมคะแนน
+        for (let key in scoreWeight) {
+            scores[key] += scoreWeight[key];
+        }
+        
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        
+        // หาประเทศที่ได้คะแนนสูงสุด
+        let finalCountry = 'japan';
+        if (scores.thailand > scores.japan && scores.thailand > scores.korea) {
+            finalCountry = 'thailand';
+        } else if (scores.korea > scores.japan && scores.korea > scores.thailand) {
+            finalCountry = 'korea';
+        }
+        
+        const result = resultsData[finalCountry];
+        document.getElementById('result-country').innerText = result.title;
+        document.getElementById('result-text').innerText = result.desc;
+        
+        // อัปเดตลิงก์สำหรับแชร์ไปที่ X (Twitter) พร้อมติดแฮชแท็ก
+        const shareText = encodeURIComponent(`ฉันเล่น Dream Passport Quiz แล้ว ผลลัพธ์คือได้ประเทศ ${result.title}! คุณล่ะเหมาะกับประเทศไหนมาลองเล่นกันสิ ✈️✨\n\nLive Your Dream, Leave Your Echo.`);
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}&hashtags=DreamEcho`;
+        document.getElementById('share-twitter-btn').href = twitterUrl;
+    }
+</script>
+
+</body>
+</html>
